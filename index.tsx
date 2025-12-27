@@ -25,7 +25,7 @@ const db = new Database("./spotify_clean.sqlite3");
 const artist_query = db.prepare<Artist, number>("select * from artists where rowid = ? limit 1");
 const artistalbum_query = db.prepare<ArtistAlbum, number>("select * from artist_albums where album_rowid = ? and is_implicit_appears_on = 0 limit 1");
 const album_query = db.prepare<Album, number>("select * from albums where rowid = ? limit 1");
-const track_query = db.prepare<Track, number>("select * from tracks where rowid = ?");
+const track_query = db.prepare<Track, number>("select * from tracks where rowid = ? limit 1");
 const market_query = db.prepare<AvailableMarket, number>("select * from available_markets where rowid = ? limit 1");
 
 const server = serve({
