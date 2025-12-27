@@ -1,0 +1,17 @@
+{
+  "name": "musicmeta",
+  "module": "index.tsx",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/react-dom": "^19.2.3"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "lucide-react": "^0.562.0",
+    "react-dom": "^19.2.3"
+  }
+}

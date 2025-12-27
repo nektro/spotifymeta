@@ -1,0 +1,194 @@
+* {
+    box-sizing: border-box;
+}
+
+.usa-logo {
+    margin-top: 0rem !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.usa-logo__text {
+    font-size: 1.25rem;
+}
+
+.usa-logo__text::before {
+    content: "";
+    background-image: url('https://open.spotifycdn.com/cdn/images/favicon32.b64ecc03.png');
+    display: inline-block;
+    width: 1.5rem;
+    height: 1.5rem;
+    background-repeat: no-repeat;
+    background-size: 100%auto;
+    margin-left: -2px;
+    margin-right: .25rem;
+    position: relative;
+    top: .25rem;
+}
+
+body {
+    background-color: #f7f9fa;
+}
+
+header {
+    background-color: #2d2e2f; /* gray-cool-80 */
+}
+
+.usa-logo__text a {
+    color: white;
+}
+
+.usa-nav {
+    background-color: white;
+    border-bottom: 2px solid #edeff0;
+}
+
+table {
+    width: 100%;
+}
+
+.usa-table td {
+    padding: 0 .25rem;
+    text-align: right;
+}
+
+.usa-table thead tr:nth-child(2) th {
+    padding: 0 .25rem;
+}
+
+.usa-table td:nth-child(1),
+.usa-table td:nth-child(2) {
+    text-align: left;
+}
+
+/*  */
+
+.usa-sidenav__item a {
+    display: flex !important;
+    align-items: center;
+    gap: .25rem;
+
+    & svg {
+        height: 1.25rem;
+    }
+}
+
+.sidenav h3 {
+    margin: .5rem;
+}
+
+.usa-card {
+    width: 200px;
+}
+
+.usa-card__img img {
+    height: revert-layer;
+}
+
+.usa-card__heading {
+    font-size: unset;
+}
+
+.usa-card > a[href] {
+    display: block;
+    text-decoration: none;
+    cursor: pointer;
+    height: 100%;
+}
+
+.usa-nav__inner {
+    margin: 0 !important;
+}
+
+.usa-card__heading {
+    font-size: .75em;
+}
+
+.usa-card__header, .usa-card__body {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+/* */
+
+.as-grid-table {
+    display: grid;
+
+    & :is(thead, tbody) {
+        display: grid;
+        grid-template-columns: subgrid;
+        grid-column: 1 / -1;
+
+        & tr {
+            display: grid;
+            grid-template-columns: subgrid;
+            grid-column: 1 / -1;
+
+            & :is(th, td) {
+                display: block;
+
+                &[colspan] {
+                    grid-column: span attr(colspan);
+                }
+                /* ^ isnt supported in firefox or safari yet */
+                &[colspan="2"] {
+                    grid-column: span 2;
+                }
+                &[colspan="3"] {
+                    grid-column: span 3;
+                }
+
+                &+ :is(th, td) {
+                    border-left-width: 0;
+                }
+
+            }
+
+            &+tr :is(th, td) {
+                border-top-width: 0;
+            }
+        }
+    }
+}
+
+.tabs {
+  margin: 1em 0;
+}
+[role="tablist"] {
+  margin-bottom: -1px;
+}
+[role="tab"] {
+  position: relative;
+  z-index: 1;
+  background: white;
+  border-radius: 5px 5px 0 0;
+  border: 1px solid grey;
+  border-bottom: 0;
+  padding: 0.2em;
+}
+[role="tab"][aria-selected="true"] {
+  z-index: 3;
+  border-top-width: 4px;
+}
+[role="tabpanel"] {
+  position: relative;
+  padding: 0.5em;
+  border: 1px solid grey;
+  border-radius: 0 0 5px 5px;
+  background: white;
+  z-index: 2;
+}
+[role="tabpanel"]:focus {
+  /* border-color: #356fb3; */
+  /* outline: 1px solid #356fb3; */
+  outline: none;
+}
+
+/* */
+
+.tabs {
+  margin-bottom: 0;
+}
+[role="tabpanel"] {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
