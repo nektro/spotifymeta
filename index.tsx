@@ -28,6 +28,10 @@ const album_query = db.prepare<Album, number>("select * from albums where rowid 
 const track_query = db.prepare<Track, number>("select * from tracks where rowid = ? limit 1");
 const market_query = db.prepare<AvailableMarket, number>("select * from available_markets where rowid = ? limit 1");
 
+const _seconds = (ms: number) => (((ms / 1000) | 0) % 60).toString(10).padStart(2, "0");
+const _minutes = (ms: number) => (ms / 1000 / 60) | 0;
+const _duration = (ms: number) => `${_minutes(ms)}:${_seconds(ms)}`;
+
 const server = serve({
   port,
 
@@ -347,8 +351,6 @@ function Page(req: Request, url: URL, pathname: string) {
     const artist = artist_query.get(artistalbum.artist_rowid)!;
     const tracks_query = db.prepare("select * from tracks where album_rowid = ?");
     const tracks = tracks_query.all(album.rowid) as Track[];
-    const _seconds = (ms: number) => (((ms / 1000) | 0) % 60).toString(10).padStart(2, "0");
-    const _minutes = (ms: number) => (ms / 1000 / 60) | 0;
     return (
       <html lang="en">
         <Head />
@@ -424,14 +426,74 @@ function Page(req: Request, url: URL, pathname: string) {
                               {row.name} {row.explicit === 1 && <span className="usa-tag">E</span>}
                             </a>
                           </td>
-                          <td>
-                            {_minutes(row.duration_ms)}:{_seconds(row.duration_ms)}
-                          </td>
+                          <td>{_duration(row.duration_ms)}</td>
                           <td>{row.external_id_isrc ?? "N/A"}</td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </body>
+      </html>
+    );
+  }
+
+  if (/^\/tracks\/\d+$/.test(pathname)) {
+    const id = parseInt(pathname.split("/")[2]!);
+    const track = track_query.get(id);
+    if (track == null) return null;
+    const album = album_query.get(track.album_rowid)!;
+    const artistalbum = artistalbum_query.get(album.rowid)!;
+    const artist = artist_query.get(artistalbum.artist_rowid)!;
+    return (
+      <html lang="en">
+        <Head />
+        <body>
+          <Header />
+          <div>
+            <div className="grid">
+              <div className="grid-row grid-gap">
+                <Sidenav pathname={pathname} />
+                <div className="grid-col-8">
+                  <h1>
+                    <a className="usa-link" href={`/artists/${artist.rowid}`}>
+                      {artist.name}
+                    </a>{" "}
+                    &#x203A;{" "}
+                    <a className="usa-link" href={`/albums/${album.rowid}`}>
+                      {album.name}
+                    </a>{" "}
+                    &#x203A; {track.name}
+                  </h1>
+
+                  <div className="grid">
+                    <div className="grid-row grid-gap">
+                      <div className="grid-col-3">
+                        <AlbumImage albumid={album.rowid} w={320} h={320} />
+                      </div>
+                      <dl className="grid-col-9">
+                        <dt>ID:</dt>
+                        <dd>{id}</dd>
+                        <dt>Spotify ID:</dt>
+                        <dd>
+                          <a className="usa-link" href={`https://open.spotify.com/track/${track.id}`} target="_blank">
+                            <code>{track.id}</code> ↗
+                          </a>
+                        </dd>
+                        <dt>ISRC:</dt>
+                        <dd>{track.external_id_isrc ?? "N/A"}</dd>
+                        <dt>Available Markets:</dt>
+                        <dd>
+                          <AvailableMarkets rowid={track.available_markets_rowid} />
+                        </dd>
+                        <dt>Duration:</dt>
+                        <dd>{_duration(track.duration_ms)}</dd>
+                      </dl>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
