@@ -22,7 +22,7 @@ const PLACES = [
 ] as const;
 
 const db = new Database("./spotify_clean.sqlite3");
-const artist_query = db.prepare<Artist, number>("select * from artists where rowid = ? limit 1");
+const artist_query = db.prepare<Artist, ArtistRowId>("select * from artists where rowid = ? limit 1");
 const artistalbum_query = db.prepare<ArtistAlbum, number>("select * from artist_albums where album_rowid = ? and is_implicit_appears_on = 0 limit 1");
 const album_query = db.prepare<Album, number>("select * from albums where rowid = ? limit 1");
 const track_query = db.prepare<Track, number>("select * from tracks where rowid = ? limit 1");
@@ -56,6 +56,8 @@ const server = serve({
   },
 });
 
+type ArtistRowId = number & { __brand: "artists" };
+
 // CREATE TABLE `artists` (
 //  `rowid` integer PRIMARY KEY NOT NULL,
 //  `id` text NOT NULL,
@@ -65,7 +67,7 @@ const server = serve({
 //  `popularity` integer NOT NULL
 // )
 type Artist = {
-  rowid: number;
+  rowid: ArtistRowId;
   id: string;
   fetched_at: number;
   name: string;
@@ -80,7 +82,7 @@ type Artist = {
 //  `url` text NOT NULL,
 // )
 type ArtistImage = {
-  artist_rowid: number;
+  artist_rowid: ArtistRowId;
   width: number;
   height: number;
   url: string;
@@ -129,7 +131,7 @@ type Album = {
 //  `index_in_album` integer,
 // )
 type ArtistAlbum = {
-  artist_rowid: number;
+  artist_rowid: ArtistRowId;
   album_rowid: number;
   is_appears_on: number;
   is_implicit_appears_on: number;
@@ -195,7 +197,7 @@ type Track = {
 // )
 type TrackArtist = {
   track_rowid: number;
-  artist_rowid: number;
+  artist_rowid: ArtistRowId;
 };
 
 // CREATE TABLE `track_audio_features` (
@@ -292,7 +294,7 @@ function Page(req: Request, url: URL, pathname: string) {
 
   if (/^\/artists\/\d+$/.test(pathname)) {
     const id = parseInt(pathname.split("/")[2]!);
-    const artist = artist_query.get(id);
+    const artist = artist_query.get(id as ArtistRowId);
     if (artist == null) return null;
     return (
       <html lang="en">
@@ -340,7 +342,7 @@ function Page(req: Request, url: URL, pathname: string) {
 
   if (/^\/artists\/\d+\/(albums|singles|compilations)$/.test(pathname) && req.headers.get("HX-Request")) {
     const id = parseInt(pathname.split("/")[2]!);
-    const artist = artist_query.get(id);
+    const artist = artist_query.get(id as ArtistRowId);
     if (artist == null) return null;
     const album_type = pathname.split("/")[3]!.slice(0, -1);
 
