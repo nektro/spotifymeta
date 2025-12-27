@@ -1,2 +1,3 @@
 node_modules
 spotify_clean.sqlite3
+spotify_clean_audio_features.sqlite3

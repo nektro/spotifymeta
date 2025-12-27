@@ -28,6 +28,9 @@ const album_query = db.prepare<Album, number>("select * from albums where rowid 
 const track_query = db.prepare<Track, number>("select * from tracks where rowid = ? limit 1");
 const market_query = db.prepare<AvailableMarket, number>("select * from available_markets where rowid = ? limit 1");
 
+const db_audio_features = new Database("./spotify_clean_audio_features.sqlite3");
+const feature_query = db_audio_features.prepare<AudioFeature, string>("select * from track_audio_features where track_id = ? limit 1");
+
 const _seconds = (ms: number) => (((ms / 1000) | 0) % 60).toString(10).padStart(2, "0");
 const _minutes = (ms: number) => (ms / 1000 / 60) | 0;
 const _duration = (ms: number) => `${_minutes(ms)}:${_seconds(ms)}`;
@@ -194,6 +197,51 @@ type TrackArtist = {
   track_rowid: number;
   artist_rowid: number;
 };
+
+// CREATE TABLE `track_audio_features` (
+//  `rowid` integer PRIMARY KEY NOT NULL,
+//  `track_id` text NOT NULL,
+//  `fetched_at` integer NOT NULL,
+//  `null_response` integer NOT NULL,
+//  `duration_ms` integer,
+//  `time_signature` integer,
+//  `tempo` integer,
+//  `key` integer,
+//  `mode` integer,
+//  `danceability` real,
+//  `energy` real,
+//  `loudness` real,
+//  `speechiness` real,
+//  `acousticness` real,
+//  `instrumentalness` real,
+//  `liveness` real,
+//  `valence` real
+// )
+type AudioFeature = {
+  rowid: number;
+  track_id: string;
+  fetched_at: number;
+} & (
+  | {
+      null_response: 1;
+    }
+  | {
+      null_response: 0;
+      duration_ms: number;
+      time_signature: number;
+      tempo: number;
+      key: number;
+      mode: 0 | 1;
+      danceability: number;
+      energy: number;
+      loudness: number;
+      speechiness: number;
+      acousticness: number;
+      instrumentalness: number;
+      liveness: number;
+      valence: number;
+    }
+);
 
 function Page(req: Request, url: URL, pathname: string) {
   if (pathname === "/") {
@@ -448,6 +496,7 @@ function Page(req: Request, url: URL, pathname: string) {
     const album = album_query.get(track.album_rowid)!;
     const artistalbum = artistalbum_query.get(album.rowid)!;
     const artist = artist_query.get(artistalbum.artist_rowid)!;
+    const features = feature_query.get(track.id);
     return (
       <html lang="en">
         <Head />
@@ -496,6 +545,55 @@ function Page(req: Request, url: URL, pathname: string) {
                         </dd>
                         <dt>Duration:</dt>
                         <dd>{_duration(track.duration_ms)}</dd>
+                        {features && !features.null_response && (
+                          <>
+                            <dt>Time Signature:</dt>
+                            <dd>{features.time_signature}/4</dd>
+                            <dt>Tempo:</dt>
+                            <dd>{features.tempo} BPM</dd>
+                            <dt>Key:</dt>
+                            <dd>{["C", "C♯/D♭", "D", "D♯/E♭", "E", "E♯/F♭", "F", "F♯/G♭", "G", "G♯/A♭", "A", "A♯/B♭", "B", "B♯/C♭"][features.key ?? -1] ?? "N/A"}</dd>
+                            <dt>Mode:</dt>
+                            <dd>{["Minor", "Major"][features.mode ?? -1] ?? "N/A"}</dd>
+                            <dt>Loudness:</dt>
+                            <dd>{features.loudness} dB</dd>
+                            <dt>Danceability:</dt>
+                            <dd>
+                              <progress max={1} value={features.danceability} />
+                              {` ${(features.danceability * 100).toPrecision(3)} %`}
+                            </dd>
+                            <dt>Energy:</dt>
+                            <dd>
+                              <progress max={1} value={features.energy} />
+                              {` ${(features.energy * 100).toPrecision(3)} %`}
+                            </dd>
+                            <dt>Speechiness:</dt>
+                            <dd>
+                              <progress max={1} value={features.speechiness} />
+                              {` ${(features.speechiness * 100).toPrecision(3)} %`}
+                            </dd>
+                            <dt>Acousticness:</dt>
+                            <dd>
+                              <progress max={1} value={features.acousticness} />
+                              {` ${(features.acousticness * 100).toPrecision(3)} %`}
+                            </dd>
+                            <dt>Instrumentalness:</dt>
+                            <dd>
+                              <progress max={1} value={features.instrumentalness} />
+                              {` ${(features.instrumentalness * 100).toPrecision(3)} %`}
+                            </dd>
+                            <dt>Liveness:</dt>
+                            <dd>
+                              <progress max={1} value={features.liveness} />
+                              {` ${(features.liveness * 100).toPrecision(3)} %`}
+                            </dd>
+                            <dt>Valence:</dt>
+                            <dd>
+                              <progress max={1} value={features.valence} />
+                              {` ${(features.valence * 100).toPrecision(3)} %`}
+                            </dd>
+                          </>
+                        )}
                       </dl>
                     </div>
                   </div>
