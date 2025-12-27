@@ -48,7 +48,6 @@ table {
 
 .usa-table td {
     padding: 0 .25rem;
-    text-align: right;
 }
 
 .usa-table thead tr:nth-child(2) th {
@@ -106,6 +105,10 @@ table {
 .usa-card__header, .usa-card__body {
     padding-left: 1rem;
     padding-right: 1rem;
+}
+
+#page-album table {
+    grid-template-columns: auto auto 1fr auto;
 }
 
 /* */
@@ -181,6 +184,12 @@ table {
   /* border-color: #356fb3; */
   /* outline: 1px solid #356fb3; */
   outline: none;
+}
+
+dl {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    row-gap: 0.5rem;
 }
 
 /* */

@@ -98,7 +98,7 @@ type Album = {
   name: string;
   album_type: "single" | "album" | "compilation";
   available_markets_rowid: number;
-  external_id_upc: string;
+  external_id_upc?: string;
   copyright_c?: string;
   copyright_p?: string;
   label: string;
@@ -135,6 +135,15 @@ type AlbumImage = {
   width: number;
   height: number;
   url: string;
+};
+
+// CREATE TABLE `available_markets` (
+//  `rowid` integer PRIMARY KEY NOT NULL,
+//  `available_markets` text NOT NULL
+// )
+type AvailableMarket = {
+  rowid: number;
+  available_markets: string;
 };
 
 // CREATE TABLE `tracks` (
@@ -337,22 +346,91 @@ function Page(req: Request, url: URL, pathname: string) {
     const artistalbum = artistalbum_query.get(album.rowid) as ArtistAlbum;
     const artist_query = db.prepare("select * from artists where rowid = ? limit 1");
     const artist = artist_query.get(artistalbum.artist_rowid) as Artist;
+    const tracks_query = db.prepare("select * from tracks where album_rowid = ?");
+    const tracks = tracks_query.all(album.rowid) as Track[];
+    const _seconds = (ms: number) => (((ms / 1000) | 0) % 60).toString(10).padStart(2, "0");
+    const _minutes = (ms: number) => (ms / 1000 / 60) | 0;
     return (
       <html lang="en">
         <Head />
-        <body>
+        <body id="page-album">
           <Header />
           <div>
             <div className="grid">
               <div className="grid-row grid-gap">
                 <Sidenav pathname={pathname} />
-                <div className="grid-col-10">
+                <div className="grid-col-8">
                   <h1>
                     <a className="usa-link" href={`/artists/${artist.rowid}`}>
                       {artist.name}
                     </a>{" "}
                     &#x203A; {album.name}
                   </h1>
+
+                  <div className="grid">
+                    <div className="grid-row grid-gap">
+                      <div className="grid-col-3">
+                        <AlbumImage albumid={id} w={320} h={320} />
+                      </div>
+                      <dl className="grid-col-9">
+                        <dt>ID:</dt>
+                        <dd>{album.rowid}</dd>
+                        <dt>Spotify ID:</dt>
+                        <dd>
+                          <a className="usa-link" href={`https://open.spotify.com/album/${album.id}`} target="_blank">
+                            <code>{album.id}</code> ↗
+                          </a>
+                        </dd>
+                        <dt>Album Type:</dt>
+                        <dd>{album.album_type.charAt(0).toUpperCase() + album.album_type.slice(1)}</dd>
+                        <dt>Available Markets:</dt>
+                        <dd>
+                          <AvailableMarkets rowid={album.available_markets_rowid} />
+                        </dd>
+                        <dt>UPC:</dt>
+                        <dd>{album.external_id_upc || "N/A"}</dd>
+                        <dt>&copy;</dt>
+                        <dd>{album.copyright_c}</dd>
+                        <dt>&#x2117;</dt>
+                        <dd>{album.copyright_p}</dd>
+                        <dt>Label:</dt>
+                        <dd>{album.label}</dd>
+                        <dt>Release Date:</dt>
+                        <dd>
+                          {album.release_date} ({album.release_date_precision})
+                        </dd>
+                        <dt>AMGID:</dt>
+                        <dd>{album.external_id_amgid || "N/A"}</dd>
+                      </dl>
+                    </div>
+                  </div>
+
+                  <table className="usa-table usa-table--compact as-grid-table">
+                    <thead>
+                      <tr>
+                        <th>Disk</th>
+                        <th>Track</th>
+                        <th>Name</th>
+                        <th>Duration</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {tracks.map((row) => (
+                        <tr key={row.rowid}>
+                          <td>{row.disc_number}</td>
+                          <td>{row.track_number}</td>
+                          <td>
+                            <a href={`/tracks/${row.rowid}`} className="usa-link">
+                              {row.name} {row.explicit === 1 && <span className="usa-tag">E</span>}
+                            </a>
+                          </td>
+                          <td>
+                            {_minutes(row.duration_ms)}:{_seconds(row.duration_ms)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
@@ -440,8 +518,6 @@ function ArtistCard(props: { artist: Artist }) {
 
 function AlbumCard(props: { album: Album }) {
   const { album } = props;
-  const image_query = db.prepare("select * from album_images where album_rowid = ? limit 1");
-  const image = image_query.get(album.rowid) as AlbumImage | null;
   return (
     <li className="usa-card">
       <a href={`/albums/${album.rowid}`}>
@@ -451,7 +527,7 @@ function AlbumCard(props: { album: Album }) {
           </div>
           <div className="usa-card__media">
             <div className="usa-card__img">
-              <img src={image?.url} width={160} height={160} alt="A placeholder image" />
+              <AlbumImage albumid={album.rowid} w={160} h={160} />
             </div>
           </div>
           <div className="usa-card__body">
@@ -461,5 +537,30 @@ function AlbumCard(props: { album: Album }) {
         </div>
       </a>
     </li>
+  );
+}
+
+function AlbumImage(props: { albumid: number; w?: number; h?: number }) {
+  const image_query = db.prepare("select * from album_images where album_rowid = ? limit 1");
+  const image = image_query.get(props.albumid) as AlbumImage | null;
+  return <img src={image?.url} width={props.w ?? image?.width ?? 160} height={props.h ?? image?.height ?? 160} alt="A placeholder image" />;
+}
+
+function AvailableMarkets(props: { rowid: number }) {
+  if (props.rowid === 1) return <>Unavailable</>;
+  const query = db.prepare("select * from available_markets where rowid = ? limit 1");
+  const markets = query.get(props.rowid) as AvailableMarket | null;
+  if (!markets) return <>N/A</>;
+  const list = markets.available_markets.split(",").toSorted();
+  const regional_indicator = (s: string) => String.fromCodePoint(s.charCodeAt(0) - 65 + 0x1f1e6);
+  const flag_emoji = (m: string) => regional_indicator(m[0]!) + regional_indicator(m[1]!);
+  return (
+    <>
+      {list.map((v) => (
+        <span key={v} title={v}>
+          {flag_emoji(v)}
+        </span>
+      ))}
+    </>
   );
 }
