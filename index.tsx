@@ -707,6 +707,12 @@ function ArtistCard(props: { artist: Artist }) {
               <ArtistImage artistid={artist.rowid} w={160} h={160} />
             </div>
           </div>
+          <div className="usa-card__body">
+            <dl>
+              <dt>ID:</dt>
+              <dd>{artist.rowid}</dd>
+            </dl>
+          </div>
         </div>
       </a>
     </li>
@@ -734,8 +740,12 @@ function AlbumCard(props: { album: Album }) {
             </div>
           </div>
           <div className="usa-card__body">
-            <div>{album.release_date.slice(0, 4)}</div>
-            <div>{album.available_markets_rowid}</div>
+            <dl>
+              <dt>ID:</dt>
+              <dd>{album.rowid}</dd>
+              <dt>Release:</dt>
+              <dd>{album.release_date.slice(0, 4)}</dd>
+            </dl>
           </div>
         </div>
       </a>

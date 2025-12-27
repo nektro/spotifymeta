@@ -201,3 +201,9 @@ dl {
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
 }
+.usa-card dl {
+    row-gap: 0;
+}
+.usa-card dd {
+    margin-left: 1rem;
+}
