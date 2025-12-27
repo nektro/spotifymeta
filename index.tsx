@@ -412,6 +412,7 @@ function Page(req: Request, url: URL, pathname: string) {
                         <th>Track</th>
                         <th>Name</th>
                         <th>Duration</th>
+                        <th>ISRC</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -427,6 +428,7 @@ function Page(req: Request, url: URL, pathname: string) {
                           <td>
                             {_minutes(row.duration_ms)}:{_seconds(row.duration_ms)}
                           </td>
+                          <td>{row.external_id_isrc ?? "N/A"}</td>
                         </tr>
                       ))}
                     </tbody>

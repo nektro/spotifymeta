@@ -108,7 +108,7 @@ table {
 }
 
 #page-album table {
-    grid-template-columns: auto auto 1fr auto;
+    grid-template-columns: auto auto 1fr auto auto;
 }
 
 /* */
