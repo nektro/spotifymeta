@@ -23,10 +23,10 @@ const PLACES = [
 
 const db = new Database("./spotify_clean.sqlite3");
 const artist_query = db.prepare<Artist, ArtistRowId>("select * from artists where rowid = ? limit 1");
-const artistalbum_query = db.prepare<ArtistAlbum, number>("select * from artist_albums where album_rowid = ? and is_implicit_appears_on = 0 limit 1");
-const album_query = db.prepare<Album, number>("select * from albums where rowid = ? limit 1");
-const track_query = db.prepare<Track, number>("select * from tracks where rowid = ? limit 1");
-const market_query = db.prepare<AvailableMarket, number>("select * from available_markets where rowid = ? limit 1");
+const artistalbum_query = db.prepare<ArtistAlbum, AlbumRowId>("select * from artist_albums where album_rowid = ? and is_implicit_appears_on = 0 limit 1");
+const album_query = db.prepare<Album, AlbumRowId>("select * from albums where rowid = ? limit 1");
+const track_query = db.prepare<Track, TrackRowId>("select * from tracks where rowid = ? limit 1");
+const market_query = db.prepare<AvailableMarket, AvailableMarketRowId>("select * from available_markets where rowid = ? limit 1");
 
 const db_audio_features = new Database("./spotify_clean_audio_features.sqlite3");
 const feature_query = db_audio_features.prepare<AudioFeature, string>("select * from track_audio_features where track_id = ? limit 1");
@@ -57,6 +57,14 @@ const server = serve({
 });
 
 type ArtistRowId = number & { __brand: "artists" };
+
+type AlbumRowId = number & { __brand: "albums" };
+
+type AvailableMarketRowId = number & { __brand: "available_markets" };
+
+type TrackRowId = number & { __brand: "tracks" };
+
+type AudioFeatureRowId = number & { __brand: "track_audio_features" };
 
 // CREATE TABLE `artists` (
 //  `rowid` integer PRIMARY KEY NOT NULL,
@@ -106,12 +114,12 @@ type ArtistImage = {
 //  `external_id_amgid` text,
 // )
 type Album = {
-  rowid: number;
+  rowid: AlbumRowId;
   id: string;
   fetched_at: number;
   name: string;
   album_type: "single" | "album" | "compilation";
-  available_markets_rowid: number;
+  available_markets_rowid: AvailableMarketRowId;
   external_id_upc?: string;
   copyright_c?: string;
   copyright_p?: string;
@@ -132,7 +140,7 @@ type Album = {
 // )
 type ArtistAlbum = {
   artist_rowid: ArtistRowId;
-  album_rowid: number;
+  album_rowid: AlbumRowId;
   is_appears_on: number;
   is_implicit_appears_on: number;
   index_in_album?: number;
@@ -145,7 +153,7 @@ type ArtistAlbum = {
 //  `url` text NOT NULL,
 // )
 type AlbumImage = {
-  album_rowid: number;
+  album_rowid: AlbumRowId;
   width: number;
   height: number;
   url: string;
@@ -156,7 +164,7 @@ type AlbumImage = {
 //  `available_markets` text NOT NULL
 // )
 type AvailableMarket = {
-  rowid: number;
+  rowid: AvailableMarketRowId;
   available_markets: string;
 };
 
@@ -176,16 +184,16 @@ type AvailableMarket = {
 //  `explicit` integer NOT NULL,
 // )
 type Track = {
-  rowid: number;
+  rowid: TrackRowId;
   id: string;
   fetched_at: number;
   name: string;
   preview_url?: string;
-  album_rowid: number;
+  album_rowid: AlbumRowId;
   track_number: number;
   external_id_isrc?: string;
   popularity: number;
-  available_markets_rowid: number;
+  available_markets_rowid: AvailableMarketRowId;
   disc_number: number;
   duration_ms: number;
   explicit: 0 | 1;
@@ -196,7 +204,7 @@ type Track = {
 //  `artist_rowid` integer NOT NULL,
 // )
 type TrackArtist = {
-  track_rowid: number;
+  track_rowid: TrackRowId;
   artist_rowid: ArtistRowId;
 };
 
@@ -220,7 +228,7 @@ type TrackArtist = {
 //  `valence` real
 // )
 type AudioFeature = {
-  rowid: number;
+  rowid: AudioFeatureRowId;
   track_id: string;
   fetched_at: number;
 } & (
@@ -395,7 +403,7 @@ function Page(req: Request, url: URL, pathname: string) {
 
   if (/^\/albums\/\d+$/.test(pathname)) {
     const id = parseInt(pathname.split("/")[2]!);
-    const album = album_query.get(id);
+    const album = album_query.get(id as AlbumRowId);
     if (album == null) return null;
     const artistalbum = artistalbum_query.get(album.rowid)!;
     const artist = artist_query.get(artistalbum.artist_rowid)!;
@@ -421,7 +429,7 @@ function Page(req: Request, url: URL, pathname: string) {
                   <div className="grid">
                     <div className="grid-row grid-gap">
                       <div className="grid-col" style={{ width: "320px", flex: "0 1 auto" }}>
-                        <AlbumImage albumid={id} w={320} h={320} />
+                        <AlbumImage albumid={album.rowid} w={320} h={320} />
                       </div>
                       <dl className="grid-col">
                         <dt>ID:</dt>
@@ -493,7 +501,7 @@ function Page(req: Request, url: URL, pathname: string) {
 
   if (/^\/tracks\/\d+$/.test(pathname)) {
     const id = parseInt(pathname.split("/")[2]!);
-    const track = track_query.get(id);
+    const track = track_query.get(id as TrackRowId);
     if (track == null) return null;
     const album = album_query.get(track.album_rowid)!;
     const artistalbum = artistalbum_query.get(album.rowid)!;
@@ -708,13 +716,13 @@ function AlbumCard(props: { album: Album }) {
   );
 }
 
-function AlbumImage(props: { albumid: number; w?: number; h?: number }) {
+function AlbumImage(props: { albumid: AlbumRowId; w?: number; h?: number }) {
   const image_query = db.prepare("select * from album_images where album_rowid = ? limit 1");
   const image = image_query.get(props.albumid) as AlbumImage | null;
   return <img src={image?.url} width={props.w ?? image?.width ?? 160} height={props.h ?? image?.height ?? 160} alt="A placeholder image" />;
 }
 
-function AvailableMarkets(props: { rowid: number }) {
+function AvailableMarkets(props: { rowid: AvailableMarketRowId }) {
   if (props.rowid === 1) return <>Unavailable</>;
   const markets = market_query.get(props.rowid);
   if (!markets) return <>N/A</>;
