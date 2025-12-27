@@ -466,7 +466,12 @@ function Page(req: Request, url: URL, pathname: string) {
                     <a className="usa-link" href={`/albums/${album.rowid}`}>
                       {album.name}
                     </a>{" "}
-                    &#x203A; {track.name}
+                    &#x203A; {track.name}{" "}
+                    {track.explicit === 1 && (
+                      <span className="usa-tag" style={{ verticalAlign: "middle" }}>
+                        E
+                      </span>
+                    )}
                   </h1>
 
                   <div className="grid">
