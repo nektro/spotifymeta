@@ -370,10 +370,10 @@ function Page(req: Request, url: URL, pathname: string) {
 
                   <div className="grid">
                     <div className="grid-row grid-gap">
-                      <div className="grid-col-3">
+                      <div className="grid-col" style={{ width: "320px", flex: "0 1 auto" }}>
                         <AlbumImage albumid={id} w={320} h={320} />
                       </div>
-                      <dl className="grid-col-9">
+                      <dl className="grid-col">
                         <dt>ID:</dt>
                         <dd>{album.rowid}</dd>
                         <dt>Spotify ID:</dt>
@@ -476,10 +476,10 @@ function Page(req: Request, url: URL, pathname: string) {
 
                   <div className="grid">
                     <div className="grid-row grid-gap">
-                      <div className="grid-col-3">
+                      <div className="grid-col" style={{ width: "320px", flex: "0 1 auto" }}>
                         <AlbumImage albumid={album.rowid} w={320} h={320} />
                       </div>
-                      <dl className="grid-col-9">
+                      <dl className="grid-col">
                         <dt>ID:</dt>
                         <dd>{id}</dd>
                         <dt>Spotify ID:</dt>
