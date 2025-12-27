@@ -22,6 +22,11 @@ const PLACES = [
 ] as const;
 
 const db = new Database("./spotify_clean.sqlite3");
+const artist_query = db.prepare<Artist, number>("select * from artists where rowid = ? limit 1");
+const artistalbum_query = db.prepare<ArtistAlbum, number>("select * from artist_albums where album_rowid = ? and is_implicit_appears_on = 0 limit 1");
+const album_query = db.prepare<Album, number>("select * from albums where rowid = ? limit 1");
+const track_query = db.prepare<Track, number>("select * from tracks where rowid = ?");
+const market_query = db.prepare<AvailableMarket, number>("select * from available_markets where rowid = ? limit 1");
 
 const server = serve({
   port,
@@ -206,8 +211,8 @@ function Page(req: Request, url: URL, pathname: string) {
   }
 
   if (/^\/artists$/.test(pathname)) {
-    const artist_query = db.query("select * from artists order by popularity desc limit 50");
-    const artists = artist_query.all() as Artist[];
+    const artists_query = db.query("select * from artists order by popularity desc limit 50");
+    const artists = artists_query.all() as Artist[];
     return (
       <html lang="en">
         <Head />
@@ -235,8 +240,7 @@ function Page(req: Request, url: URL, pathname: string) {
 
   if (/^\/artists\/\d+$/.test(pathname)) {
     const id = parseInt(pathname.split("/")[2]!);
-    const artist_query = db.prepare("select * from artists where rowid = ? limit 1");
-    const artist = artist_query.get(id) as Artist | null;
+    const artist = artist_query.get(id);
     if (artist == null) return null;
     return (
       <html lang="en">
@@ -284,8 +288,7 @@ function Page(req: Request, url: URL, pathname: string) {
 
   if (/^\/artists\/\d+\/(albums|singles|compilations)$/.test(pathname) && req.headers.get("HX-Request")) {
     const id = parseInt(pathname.split("/")[2]!);
-    const artist_query = db.prepare("select * from artists where rowid = ? limit 1");
-    const artist = artist_query.get(id) as Artist | null;
+    const artist = artist_query.get(id);
     if (artist == null) return null;
     const album_type = pathname.split("/")[3]!.slice(0, -1);
 
@@ -293,8 +296,7 @@ function Page(req: Request, url: URL, pathname: string) {
     const artistalbums_direct = artistalbums_query.all(artist.rowid) as ArtistAlbum[];
     const artistalbums = artistalbums_direct.reduce((pv, cv) => (pv.filter((x) => x.album_rowid === cv.album_rowid).length === 0 ? [...pv, cv] : pv), [] as ArtistAlbum[]);
 
-    const album_query = db.prepare("select * from albums where rowid = ? limit 1");
-    const albums_direct = artistalbums.map((v) => album_query.get(v.album_rowid) as Album);
+    const albums_direct = artistalbums.map((v) => album_query.get(v.album_rowid)!);
     const albums = albums_direct
       .filter((v) => v.album_type === album_type)
       .toSorted((a, b) => a.release_date.localeCompare(b.release_date))
@@ -310,8 +312,8 @@ function Page(req: Request, url: URL, pathname: string) {
   }
 
   if (/^\/albums$/.test(pathname)) {
-    const album_query = db.query("select * from albums order by popularity desc limit 50");
-    const albums = album_query.all() as Album[];
+    const albums_query = db.query("select * from albums order by popularity desc limit 50");
+    const albums = albums_query.all() as Album[];
     return (
       <html lang="en">
         <Head />
@@ -339,13 +341,10 @@ function Page(req: Request, url: URL, pathname: string) {
 
   if (/^\/albums\/\d+$/.test(pathname)) {
     const id = parseInt(pathname.split("/")[2]!);
-    const album_query = db.prepare("select * from albums where rowid = ? limit 1");
-    const album = album_query.get(id) as Album | null;
+    const album = album_query.get(id);
     if (album == null) return null;
-    const artistalbum_query = db.prepare("select * from artist_albums where album_rowid = ?");
-    const artistalbum = artistalbum_query.get(album.rowid) as ArtistAlbum;
-    const artist_query = db.prepare("select * from artists where rowid = ? limit 1");
-    const artist = artist_query.get(artistalbum.artist_rowid) as Artist;
+    const artistalbum = artistalbum_query.get(album.rowid)!;
+    const artist = artist_query.get(artistalbum.artist_rowid)!;
     const tracks_query = db.prepare("select * from tracks where album_rowid = ?");
     const tracks = tracks_query.all(album.rowid) as Track[];
     const _seconds = (ms: number) => (((ms / 1000) | 0) % 60).toString(10).padStart(2, "0");
@@ -550,8 +549,7 @@ function AlbumImage(props: { albumid: number; w?: number; h?: number }) {
 
 function AvailableMarkets(props: { rowid: number }) {
   if (props.rowid === 1) return <>Unavailable</>;
-  const query = db.prepare("select * from available_markets where rowid = ? limit 1");
-  const markets = query.get(props.rowid) as AvailableMarket | null;
+  const markets = market_query.get(props.rowid);
   if (!markets) return <>N/A</>;
   const list = markets.available_markets.split(",").toSorted();
   const regional_indicator = (s: string) => String.fromCodePoint(s.charCodeAt(0) - 65 + 0x1f1e6);
