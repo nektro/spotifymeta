@@ -315,6 +315,27 @@ function Page(req: Request, url: URL, pathname: string) {
                 <Sidenav pathname={pathname} />
                 <div className="grid-col-10">
                   <h1>{artist.name}</h1>
+                  <div className="grid">
+                    <div className="grid-row grid-gap">
+                      <div className="grid-col" style={{ width: "320px", flex: "0 1 auto" }}>
+                        <ArtistImage artistid={artist.rowid} w={160} h={160} />
+                      </div>
+                      <dl style={{ height: "fit-content" }}>
+                        <dt>ID:</dt>
+                        <dd>{id}</dd>
+                        <dt>Spotify ID:</dt>
+                        <dd>
+                          <a className="usa-link" href={`https://open.spotify.com/artist/${artist.id}`} target="_blank">
+                            <code>{artist.id}</code> ↗
+                          </a>
+                        </dd>
+                        <dt>Followers (as of {new Date(artist.fetched_at).toLocaleString()}):</dt>
+                        <dd>{artist.followers_total.toLocaleString()}</dd>
+                        <dt>Popularity:</dt>
+                        <dd>{artist.popularity}</dd>
+                      </dl>
+                    </div>
+                  </div>
                   <div className="tabs">
                     <div role="tablist" aria-label="Select your operating system">
                       <button role="tab" aria-selected="true" aria-controls="panel-1" id="tab-1" tabIndex={0}>
@@ -683,13 +704,19 @@ function ArtistCard(props: { artist: Artist }) {
           </div>
           <div className="usa-card__media">
             <div className="usa-card__img">
-              <img src={image?.url} width={160} height={160} alt="A placeholder image" />
+              <ArtistImage artistid={artist.rowid} w={160} h={160} />
             </div>
           </div>
         </div>
       </a>
     </li>
   );
+}
+
+function ArtistImage(props: { artistid: ArtistRowId; w?: number; h?: number }) {
+  const image_query = db.prepare("select * from artist_images where artist_rowid = ? limit 1");
+  const image = image_query.get(props.artistid) as ArtistImage | null;
+  return <img src={image?.url} width={props.w ?? image?.width ?? 160} height={props.h ?? image?.height ?? 160} alt="A placeholder image" />;
 }
 
 function AlbumCard(props: { album: Album }) {
