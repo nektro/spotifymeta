@@ -307,7 +307,22 @@ function Page(req: Request, url: URL, pathname: string) {
                       <label className="usa-sr-only" htmlFor="search-field">
                         Search
                       </label>
-                      <input className="usa-input" id="search-field" type="search" name="q" required minLength={3} placeholder="Search" list="search-results" hx-validate="true" hx-trigger="input changed delay:250ms" hx-get="/artists/search" hx-swap="outerHTML" hx-target="#search-results" />
+                      <input
+                        //
+                        className="usa-input"
+                        id="search-field"
+                        type="search"
+                        name="q"
+                        required
+                        minLength={3}
+                        placeholder="Search"
+                        list="search-results"
+                        hx-validate="true"
+                        hx-trigger="input changed delay:250ms"
+                        hx-get="/artists/search"
+                        hx-swap="outerHTML"
+                        hx-target="#search-results"
+                      />
                       <button className="usa-button" type="submit">
                         <img className="usa-search__submit-icon" alt="Go" width="24" height="24" />
                       </button>
@@ -512,7 +527,22 @@ function Page(req: Request, url: URL, pathname: string) {
                       <label className="usa-sr-only" htmlFor="search-field">
                         Search
                       </label>
-                      <input className="usa-input" id="search-field" type="search" name="q" required minLength={3} placeholder="Search" list="search-results" hx-validate="true" hx-trigger="input changed delay:250ms" hx-get="/albums/search" hx-swap="outerHTML" hx-target="#search-results" />
+                      <input
+                        //
+                        className="usa-input"
+                        id="search-field"
+                        type="search"
+                        name="q"
+                        required
+                        minLength={3}
+                        placeholder="Search"
+                        list="search-results"
+                        hx-validate="true"
+                        hx-trigger="input changed delay:250ms"
+                        hx-get="/albums/search"
+                        hx-swap="outerHTML"
+                        hx-target="#search-results"
+                      />
                       <button className="usa-button" type="submit">
                         <img className="usa-search__submit-icon" alt="Go" width="24" height="24" />
                       </button>
@@ -747,7 +777,22 @@ function Page(req: Request, url: URL, pathname: string) {
                       <label className="usa-sr-only" htmlFor="search-field">
                         Search
                       </label>
-                      <input className="usa-input" id="search-field" type="search" name="q" required minLength={3} placeholder="Search" list="search-results" hx-validate="true" hx-trigger="input changed delay:250ms" hx-get="/tracks/search" hx-swap="outerHTML" hx-target="#search-results" />
+                      <input
+                        //
+                        className="usa-input"
+                        id="search-field"
+                        type="search"
+                        name="q"
+                        required
+                        minLength={3}
+                        placeholder="Search"
+                        list="search-results"
+                        hx-validate="true"
+                        hx-trigger="input changed delay:250ms"
+                        hx-get="/tracks/search"
+                        hx-swap="outerHTML"
+                        hx-target="#search-results"
+                      />
                       <button className="usa-button" type="submit">
                         <img className="usa-search__submit-icon" alt="Go" width="24" height="24" />
                       </button>
