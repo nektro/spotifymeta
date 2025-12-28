@@ -48,6 +48,7 @@ const server = serve({
     "/-/npm/@uswds/uswds/dist/fonts/source-sans-pro/sourcesanspro-bold-webfont.woff2": Bun.file("./node_modules/@uswds/uswds/dist/fonts/source-sans-pro/sourcesanspro-bold-webfont.woff2"),
     "/-/npm/@uswds/uswds/dist/fonts/source-sans-pro/sourcesanspro-regular-webfont.woff2": Bun.file("./node_modules/@uswds/uswds/dist/fonts/source-sans-pro/sourcesanspro-regular-webfont.woff2"),
     "/-/npm/@uswds/uswds/dist/fonts/merriweather/Latin-Merriweather-Bold.woff2": Bun.file("./node_modules/@uswds/uswds/dist/fonts/merriweather/Latin-Merriweather-Bold.woff2"),
+    "/-/npm/@uswds/uswds/dist/img/usa-icons/launch.svg": Bun.file("./node_modules/@uswds/uswds/dist/img/usa-icons/launch.svg"),
   },
 
   async fetch(req) {
@@ -440,8 +441,8 @@ function Page(req: Request, url: URL, pathname: string) {
                         <dd>{id}</dd>
                         <dt>Spotify ID:</dt>
                         <dd>
-                          <a className="usa-link" href={`https://open.spotify.com/artist/${artist.id}`} target="_blank">
-                            <code>{artist.id}</code> ↗
+                          <a className="usa-link usa-link--external" href={`https://open.spotify.com/artist/${artist.id}`} target="_blank">
+                            <code>{artist.id}</code>
                           </a>
                         </dd>
                         <dt>Followers (as of {new Date(artist.fetched_at).toLocaleString()}):</dt>
@@ -673,8 +674,8 @@ function Page(req: Request, url: URL, pathname: string) {
                         <dd>{album.rowid}</dd>
                         <dt>Spotify ID:</dt>
                         <dd>
-                          <a className="usa-link" href={`https://open.spotify.com/album/${album.id}`} target="_blank">
-                            <code>{album.id}</code> ↗
+                          <a className="usa-link usa-link--external" href={`https://open.spotify.com/album/${album.id}`} target="_blank">
+                            <code>{album.id}</code>
                           </a>
                         </dd>
                         <dt>Album Type:</dt>
@@ -924,8 +925,8 @@ function Page(req: Request, url: URL, pathname: string) {
                         <dd>{id}</dd>
                         <dt>Spotify ID:</dt>
                         <dd>
-                          <a className="usa-link" href={`https://open.spotify.com/track/${track.id}`} target="_blank">
-                            <code>{track.id}</code> ↗
+                          <a className="usa-link usa-link--external" href={`https://open.spotify.com/track/${track.id}`} target="_blank">
+                            <code>{track.id}</code>
                           </a>
                         </dd>
                         <dt>ISRC:</dt>
@@ -1171,8 +1172,8 @@ function TrackCard(props: { track: Track }) {
                 <dd>{track.rowid}</dd>
                 <dt>Spotify ID:</dt>
                 <dd>
-                  <a className="usa-link" href={`https://open.spotify.com/track/${track.id}`} target="_blank">
-                    <code>{track.id}</code> ↗
+                  <a className="usa-link usa-link--external" href={`https://open.spotify.com/track/${track.id}`} target="_blank">
+                    <code>{track.id}</code>
                   </a>
                 </dd>
                 <dt>Duration:</dt>
