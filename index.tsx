@@ -568,7 +568,7 @@ function Page(req: Request, url: URL, pathname: string) {
               <div className="grid-row grid-gap">
                 <Sidenav pathname={pathname} />
                 <div className="grid-col-10">
-                  <h1>Artist Search: {q}</h1>
+                  <h1>Album Search: {q}</h1>
                   <ul className="usa-card-group">
                     {albums.map((row) => (
                       <AlbumCard key={row.rowid} album={row} />
