@@ -224,3 +224,11 @@ h1 {
     display: inline-flex;
     margin-left: 1rem;
 }
+.usa-search__submit-icon {
+    mask-image: url("/-/npm/lucide-static/icons/search.svg"), linear-gradient(transparent, transparent);
+    background-color: white;
+}
+.usa-search .usa-input {
+    max-width: unset;
+    width: 30em;
+}

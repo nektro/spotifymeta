@@ -42,6 +42,7 @@ const server = serve({
   routes: {
     "/style3.css": Bun.file("./style3.css"),
     "/script.js": Bun.file("./script.js"),
+    "/-/npm/lucide-static/icons/search.svg": Bun.file("./node_modules/lucide-static/icons/search.svg"),
   },
 
   async fetch(req) {

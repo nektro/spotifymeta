@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "lucide-react": "^0.562.0",
+    "lucide-static": "^0.562.0",
     "react-dom": "^19.2.3"
   }
 }
