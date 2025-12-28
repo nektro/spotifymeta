@@ -499,7 +499,19 @@ function Page(req: Request, url: URL, pathname: string) {
               <div className="grid-row grid-gap">
                 <Sidenav pathname={pathname} />
                 <div className="grid-col-10">
-                  <h1>Albums</h1>
+                  <h1>
+                    Albums
+                    <form className="usa-search usa-search--small" role="search" action="/albums/search" method="get">
+                      <label className="usa-sr-only" htmlFor="search-field">
+                        Search
+                      </label>
+                      <input className="usa-input" id="search-field" type="search" name="q" required minLength={3} placeholder="Search" list="search-results" hx-validate="true" hx-trigger="input changed delay:250ms" hx-get="/albums/search" hx-swap="outerHTML" hx-target="#search-results" />
+                      <button className="usa-button" type="submit">
+                        <img className="usa-search__submit-icon" alt="Go" width="24" height="24" />
+                      </button>
+                      <datalist id="search-results" />
+                    </form>
+                  </h1>
                   <ul className="usa-card-group">
                     <li hx-get="/albums/?limit=50&offset=0" hx-swap="outerHTML" hx-trigger="revealed">
                       Loading more...
@@ -530,6 +542,58 @@ function Page(req: Request, url: URL, pathname: string) {
           Loading more...
         </li>
       </>
+    );
+  }
+
+  if (/^\/albums\/search$/.test(pathname) && not_htmx) {
+    const q = url.searchParams.get("q");
+    if (!q) return "/albums";
+    if (q.startsWith("id:")) {
+      const album_query = db.prepare<Album, string>("select * from albums where id = ? limit 1");
+      const album = album_query.get(q.slice(3));
+      if (!album) return "/albums";
+      return `/albums/${album.rowid}`;
+    }
+    const query = db.prepare<Album, string>("select * from albums where name like ? limit 50");
+    const albums = query.all(q);
+    return (
+      <html lang="en">
+        <Head />
+        <body>
+          <Header />
+          <div>
+            <div className="grid">
+              <div className="grid-row grid-gap">
+                <Sidenav pathname={pathname} />
+                <div className="grid-col-10">
+                  <h1>Artist Search: {q}</h1>
+                  <ul className="usa-card-group">
+                    {albums.map((row) => (
+                      <AlbumCard key={row.rowid} album={row} />
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </body>
+      </html>
+    );
+  }
+
+  if (/^\/albums\/search$/.test(pathname) && is_htmx) {
+    const q = url.searchParams.get("q");
+    if (!q) return <datalist id="search-results"></datalist>;
+    const query = db.prepare<Album, string>("select * from albums where name like ? limit 50");
+    const albums = query.all(q);
+    return (
+      <datalist id="search-results">
+        {albums.map((album) => (
+          <option key={album.rowid} value={`id:${album.id}`}>
+            {album.name}
+          </option>
+        ))}
+      </datalist>
     );
   }
 
