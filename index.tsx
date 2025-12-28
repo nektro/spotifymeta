@@ -308,7 +308,7 @@ function Page(req: Request, url: URL, pathname: string) {
                     </form>
                   </h1>
                   <ul className="usa-card-group">
-                    <li hx-get="/artists/?limit=50&offset=0" hx-swap="outerHTML" hx-trigger="revealed">
+                    <li hx-get="/artists?limit=50&offset=0" hx-swap="outerHTML" hx-trigger="revealed">
                       Loading more...
                     </li>
                   </ul>
@@ -321,7 +321,7 @@ function Page(req: Request, url: URL, pathname: string) {
     );
   }
 
-  if (/^\/artists\/$/.test(pathname) && is_htmx) {
+  if (/^\/artists$/.test(pathname) && is_htmx) {
     const limit = parseInt(url.searchParams.get("limit") ?? "10");
     if (!Number.isInteger(limit)) return null;
     const offset = parseInt(url.searchParams.get("offset") ?? "0");
@@ -333,7 +333,7 @@ function Page(req: Request, url: URL, pathname: string) {
         {artists.map((artist) => (
           <ArtistCard key={artist.rowid} artist={artist} />
         ))}
-        <li hx-get={`/artists/?limit=${limit}&offset=${offset + limit}`} hx-swap="outerHTML" hx-trigger="revealed">
+        <li hx-get={`/artists?limit=${limit}&offset=${offset + limit}`} hx-swap="outerHTML" hx-trigger="revealed">
           Loading more...
         </li>
       </>
@@ -513,7 +513,7 @@ function Page(req: Request, url: URL, pathname: string) {
                     </form>
                   </h1>
                   <ul className="usa-card-group">
-                    <li hx-get="/albums/?limit=50&offset=0" hx-swap="outerHTML" hx-trigger="revealed">
+                    <li hx-get="/albums?limit=50&offset=0" hx-swap="outerHTML" hx-trigger="revealed">
                       Loading more...
                     </li>
                   </ul>
@@ -526,7 +526,7 @@ function Page(req: Request, url: URL, pathname: string) {
     );
   }
 
-  if (/^\/albums\/$/.test(pathname) && is_htmx) {
+  if (/^\/albums$/.test(pathname) && is_htmx) {
     const limit = parseInt(url.searchParams.get("limit") ?? "10");
     if (!Number.isInteger(limit)) return null;
     const offset = parseInt(url.searchParams.get("offset") ?? "0");
@@ -538,7 +538,7 @@ function Page(req: Request, url: URL, pathname: string) {
         {albums.map((album) => (
           <AlbumCard key={album.rowid} album={album} />
         ))}
-        <li hx-get={`/albums/?limit=${limit}&offset=${offset + limit}`} hx-swap="outerHTML" hx-trigger="revealed">
+        <li hx-get={`/albums?limit=${limit}&offset=${offset + limit}`} hx-swap="outerHTML" hx-trigger="revealed">
           Loading more...
         </li>
       </>
