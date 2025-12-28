@@ -294,7 +294,19 @@ function Page(req: Request, url: URL, pathname: string) {
               <div className="grid-row grid-gap">
                 <Sidenav pathname={pathname} />
                 <div className="grid-col-10">
-                  <h1>Artists</h1>
+                  <h1>
+                    Artists
+                    <form className="usa-search usa-search--small" role="search" action="/artists/search" method="get">
+                      <label className="usa-sr-only" htmlFor="search-field">
+                        Search
+                      </label>
+                      <input className="usa-input" id="search-field" type="search" name="q" required minLength={3} placeholder="Search" list="search-results" hx-validate="true" hx-trigger="input changed delay:250ms" hx-get="/artists/search" hx-swap="outerHTML" hx-target="#search-results" />
+                      <button className="usa-button" type="submit">
+                        <img className="usa-search__submit-icon" alt="Go" width="24" height="24" />
+                      </button>
+                      <datalist id="search-results" />
+                    </form>
+                  </h1>
                   <ul className="usa-card-group">
                     <li hx-get="/artists/?limit=50&offset=0" hx-swap="outerHTML" hx-trigger="revealed">
                       Loading more...
@@ -325,6 +337,58 @@ function Page(req: Request, url: URL, pathname: string) {
           Loading more...
         </li>
       </>
+    );
+  }
+
+  if (/^\/artists\/search$/.test(pathname) && not_htmx) {
+    const q = url.searchParams.get("q");
+    if (!q) return "/artists";
+    if (q.startsWith("id:")) {
+      const artist_query = db.prepare<Artist, string>("select * from artists where id = ? limit 1");
+      const artist = artist_query.get(q.slice(3));
+      if (!artist) return "/artists";
+      return `/artists/${artist.rowid}`;
+    }
+    const query = db.prepare<Artist, string>("select * from artists where name like ? limit 50");
+    const artists = query.all(q);
+    return (
+      <html lang="en">
+        <Head />
+        <body>
+          <Header />
+          <div>
+            <div className="grid">
+              <div className="grid-row grid-gap">
+                <Sidenav pathname={pathname} />
+                <div className="grid-col-10">
+                  <h1>Artist Search: {q}</h1>
+                  <ul className="usa-card-group">
+                    {artists.map((artist) => (
+                      <ArtistCard key={artist.rowid} artist={artist} />
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </body>
+      </html>
+    );
+  }
+
+  if (/^\/artists\/search$/.test(pathname) && is_htmx) {
+    const q = url.searchParams.get("q");
+    if (!q) return <datalist id="search-results"></datalist>;
+    const query = db.prepare<Artist, string>("select * from artists where name like ? limit 50");
+    const artists = query.all(q);
+    return (
+      <datalist id="search-results">
+        {artists.map((artist) => (
+          <option key={artist.rowid} value={`id:${artist.id}`}>
+            {artist.name}
+          </option>
+        ))}
+      </datalist>
     );
   }
 

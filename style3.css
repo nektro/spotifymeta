@@ -207,3 +207,11 @@ dl {
 .usa-card dd {
     margin-left: 1rem;
 }
+h1 {
+    display: flex;
+    align-items: center;
+}
+.usa-search[role="search"] {
+    display: inline-flex;
+    margin-left: 1rem;
+}
