@@ -730,7 +730,7 @@ function Page(req: Request, url: URL, pathname: string) {
                               <td>{row.track_number}</td>
                               <td>
                                 <a href={`/tracks/${row.rowid}`} className="usa-link">
-                                  {row.name} {row.explicit === 1 && <span className="usa-tag">E</span>}
+                                  <TrackName track={row} />
                                 </a>
                               </td>
                               <td>
@@ -911,12 +911,7 @@ function Page(req: Request, url: URL, pathname: string) {
                     <a className="usa-link" href={`/albums/${album.rowid}`}>
                       {album.name}
                     </a>{" "}
-                    &#x203A; {track.name}{" "}
-                    {track.explicit === 1 && (
-                      <span className="usa-tag" style={{ verticalAlign: "middle" }}>
-                        E
-                      </span>
-                    )}
+                    &#x203A; <TrackName track={track} />
                   </h1>
 
                   <div className="grid">
@@ -1161,12 +1156,7 @@ function TrackCard(props: { track: Track }) {
             </a>{" "}
             &#x203A;{" "}
             <a className="usa-link" href={`/tracks/${track.rowid}`}>
-              {track.name}
-              {track.explicit === 1 && (
-                <span className="usa-tag" style={{ verticalAlign: "middle" }}>
-                  E
-                </span>
-              )}
+              <TrackName track={track} />
             </a>
           </h4>
         </div>
@@ -1195,5 +1185,19 @@ function TrackCard(props: { track: Track }) {
         </div>
       </div>
     </li>
+  );
+}
+
+function TrackName(props: { track: Track }) {
+  const { track } = props;
+  return (
+    <>
+      {track.name}{" "}
+      {track.explicit === 1 && (
+        <span className="usa-tag" style={{ verticalAlign: "middle" }}>
+          E
+        </span>
+      )}
+    </>
   );
 }
