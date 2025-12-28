@@ -11,6 +11,8 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "@uswds/uswds": "^3.13.0",
+    "htmx.org": "^2.0.8",
     "lucide-react": "^0.562.0",
     "lucide-static": "^0.562.0",
     "react-dom": "^19.2.3"

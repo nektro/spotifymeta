@@ -43,6 +43,11 @@ const server = serve({
     "/style3.css": Bun.file("./style3.css"),
     "/script.js": Bun.file("./script.js"),
     "/-/npm/lucide-static/icons/search.svg": Bun.file("./node_modules/lucide-static/icons/search.svg"),
+    "/-/npm/htmx.org/dist/htmx.js": Bun.file("./node_modules/htmx.org/dist/htmx.js"),
+    "/-/npm/@uswds/uswds/dist/css/uswds.css": Bun.file("./node_modules/@uswds/uswds/dist/css/uswds.css"),
+    "/-/npm/@uswds/uswds/dist/fonts/source-sans-pro/sourcesanspro-bold-webfont.woff2": Bun.file("./node_modules/@uswds/uswds/dist/fonts/source-sans-pro/sourcesanspro-bold-webfont.woff2"),
+    "/-/npm/@uswds/uswds/dist/fonts/source-sans-pro/sourcesanspro-regular-webfont.woff2": Bun.file("./node_modules/@uswds/uswds/dist/fonts/source-sans-pro/sourcesanspro-regular-webfont.woff2"),
+    "/-/npm/@uswds/uswds/dist/fonts/merriweather/Latin-Merriweather-Bold.woff2": Bun.file("./node_modules/@uswds/uswds/dist/fonts/merriweather/Latin-Merriweather-Bold.woff2"),
   },
 
   async fetch(req) {
@@ -854,9 +859,9 @@ function Head() {
       <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="icon" href="data:," />
-      <link rel="stylesheet" href="https://unpkg.com/@uswds/uswds@3.11.0/dist/css/uswds.css" integrity="sha384-G0llpcOOfpdIocwce8kYFUqkiabzRMkzBn3zBHHRag3s/1wb6JKvEnArq0RXjZUT" crossOrigin="anonymous" />
+      <link rel="stylesheet" href="/-/npm/@uswds/uswds/dist/css/uswds.css" />
       <link rel="stylesheet" href="/style3.css" />
-      <script src="https://unpkg.com/htmx.org@2.0.4/dist/htmx.js" integrity="sha384-oeUn82QNXPuVkGCkcrInrS1twIxKhkZiFfr2TdiuObZ3n3yIeMiqcRzkIcguaof1" crossOrigin="anonymous" />
+      <script src="/-/npm/htmx.org/dist/htmx.js" />
       <script src="/script.js" defer />
     </head>
   );
