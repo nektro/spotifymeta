@@ -1,8 +1,9 @@
 import { serve } from "bun";
 import { parseArgs } from "node:util";
 import { renderToReadableStream } from "react-dom/server";
-import { Disc3, Home, Music, User } from "lucide-react";
+import { Disc, Disc3, Home, Music, User } from "lucide-react";
 import { Database } from "bun:sqlite";
+import { Fragment } from "react/jsx-runtime";
 
 const { values } = parseArgs({
   options: {
@@ -604,8 +605,10 @@ function Page(req: Request, url: URL, pathname: string) {
     if (album == null) return null;
     const artistalbum = artistalbum_query.get(album.rowid)!;
     const artist = artist_query.get(artistalbum.artist_rowid)!;
-    const tracks_query = db.prepare("select * from tracks where album_rowid = ?");
-    const tracks = tracks_query.all(album.rowid) as Track[];
+    const tracks_query = db.prepare<Track, AlbumRowId>("select * from tracks where album_rowid = ?");
+    const tracks = tracks_query.all(album.rowid);
+    const tracks_grouped = Object.groupBy(tracks, (track) => track.disc_number + "");
+    const keys = Object.keys(tracks_grouped);
     return (
       <html lang="en">
         <Head />
@@ -664,26 +667,38 @@ function Page(req: Request, url: URL, pathname: string) {
                   <table className="usa-table usa-table--compact as-grid-table">
                     <thead>
                       <tr>
-                        <th>Disk</th>
-                        <th>Track</th>
+                        <th>#</th>
                         <th>Name</th>
                         <th>Duration</th>
                         <th>ISRC</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {tracks.map((row) => (
-                        <tr key={row.rowid}>
-                          <td>{row.disc_number}</td>
-                          <td>{row.track_number}</td>
-                          <td>
-                            <a href={`/tracks/${row.rowid}`} className="usa-link">
-                              {row.name} {row.explicit === 1 && <span className="usa-tag">E</span>}
-                            </a>
-                          </td>
-                          <td>{_duration(row.duration_ms)}</td>
-                          <td>{row.external_id_isrc ?? "N/A"}</td>
-                        </tr>
+                      {keys.map((disc) => (
+                        <Fragment key={disc}>
+                          {keys.length > 1 && (
+                            <tr className="disc">
+                              <th>
+                                <Disc height={20} />
+                              </th>
+                              <th>Disc {disc}</th>
+                              <th></th>
+                              <th></th>
+                            </tr>
+                          )}
+                          {tracks_grouped[disc]!.map((row) => (
+                            <tr key={row.rowid}>
+                              <td>{row.track_number}</td>
+                              <td>
+                                <a href={`/tracks/${row.rowid}`} className="usa-link">
+                                  {row.name} {row.explicit === 1 && <span className="usa-tag">E</span>}
+                                </a>
+                              </td>
+                              <td>{_duration(row.duration_ms)}</td>
+                              <td>{row.external_id_isrc ?? "N/A"}</td>
+                            </tr>
+                          ))}
+                        </Fragment>
                       ))}
                     </tbody>
                   </table>

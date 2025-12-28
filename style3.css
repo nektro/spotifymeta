@@ -108,7 +108,16 @@ table {
 }
 
 #page-album table {
-    grid-template-columns: auto auto 1fr auto auto;
+    grid-template-columns: auto 1fr auto auto;
+
+    & .disc th {
+        padding-top: 0;
+        padding-bottom: 0;
+
+        & svg {
+            vertical-align: sub;
+        }
+    }
 }
 
 /* */
