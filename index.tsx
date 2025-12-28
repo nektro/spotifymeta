@@ -304,31 +304,7 @@ function Page(req: Request, url: URL, pathname: string) {
                 <div className="grid-col-10">
                   <h1>
                     Artists
-                    <form className="usa-search usa-search--small" role="search" action="/artists/search" method="get">
-                      <label className="usa-sr-only" htmlFor="search-field">
-                        Search
-                      </label>
-                      <input
-                        //
-                        className="usa-input"
-                        id="search-field"
-                        type="search"
-                        name="q"
-                        required
-                        minLength={3}
-                        placeholder="Search"
-                        list="search-results"
-                        hx-validate="true"
-                        hx-trigger="input changed delay:250ms"
-                        hx-get="/artists/search"
-                        hx-swap="outerHTML"
-                        hx-target="#search-results"
-                      />
-                      <button className="usa-button" type="submit">
-                        <img className="usa-search__submit-icon" alt="Go" width="24" height="24" />
-                      </button>
-                      <datalist id="search-results" />
-                    </form>
+                    <SearchForm base="/artists" />
                   </h1>
                   <ul className="usa-card-group">
                     <li hx-get="/artists?limit=50&offset=0" hx-swap="outerHTML" hx-trigger="revealed">
@@ -524,31 +500,7 @@ function Page(req: Request, url: URL, pathname: string) {
                 <div className="grid-col-10">
                   <h1>
                     Albums
-                    <form className="usa-search usa-search--small" role="search" action="/albums/search" method="get">
-                      <label className="usa-sr-only" htmlFor="search-field">
-                        Search
-                      </label>
-                      <input
-                        //
-                        className="usa-input"
-                        id="search-field"
-                        type="search"
-                        name="q"
-                        required
-                        minLength={3}
-                        placeholder="Search"
-                        list="search-results"
-                        hx-validate="true"
-                        hx-trigger="input changed delay:250ms"
-                        hx-get="/albums/search"
-                        hx-swap="outerHTML"
-                        hx-target="#search-results"
-                      />
-                      <button className="usa-button" type="submit">
-                        <img className="usa-search__submit-icon" alt="Go" width="24" height="24" />
-                      </button>
-                      <datalist id="search-results" />
-                    </form>
+                    <SearchForm base="/albums" />
                   </h1>
                   <ul className="usa-card-group">
                     <li hx-get="/albums?limit=50&offset=0" hx-swap="outerHTML" hx-trigger="revealed">
@@ -774,31 +726,7 @@ function Page(req: Request, url: URL, pathname: string) {
                 <div className="grid-col-10">
                   <h1>
                     Tracks
-                    <form className="usa-search usa-search--small" role="search" action="/tracks/search" method="get">
-                      <label className="usa-sr-only" htmlFor="search-field">
-                        Search
-                      </label>
-                      <input
-                        //
-                        className="usa-input"
-                        id="search-field"
-                        type="search"
-                        name="q"
-                        required
-                        minLength={3}
-                        placeholder="Search"
-                        list="search-results"
-                        hx-validate="true"
-                        hx-trigger="input changed delay:250ms"
-                        hx-get="/tracks/search"
-                        hx-swap="outerHTML"
-                        hx-target="#search-results"
-                      />
-                      <button className="usa-button" type="submit">
-                        <img className="usa-search__submit-icon" alt="Go" width="24" height="24" />
-                      </button>
-                      <datalist id="search-results" />
-                    </form>
+                    <SearchForm base="/tracks" />
                   </h1>
                   <ul className="usa-card-group">
                     <li hx-get="/tracks?limit=20&offset=0" hx-swap="outerHTML" hx-trigger="revealed">
@@ -1200,5 +1128,35 @@ function TrackName(props: { track: Track }) {
         </span>
       )}
     </>
+  );
+}
+
+function SearchForm(props: { base: "/artists" | "/albums" | "/tracks" }) {
+  return (
+    <form className="usa-search usa-search--small" role="search" action={`${props.base}/search`} method="get">
+      <label className="usa-sr-only" htmlFor="search-field">
+        Search
+      </label>
+      <input
+        //
+        className="usa-input"
+        id="search-field"
+        type="search"
+        name="q"
+        required
+        minLength={3}
+        placeholder="Search"
+        list="search-results"
+        hx-validate="true"
+        hx-trigger="input changed delay:250ms"
+        hx-get={`${props.base}/search`}
+        hx-swap="outerHTML"
+        hx-target="#search-results"
+      />
+      <button className="usa-button" type="submit">
+        <img className="usa-search__submit-icon" alt="Go" width="24" height="24" />
+      </button>
+      <datalist id="search-results" />
+    </form>
   );
 }
