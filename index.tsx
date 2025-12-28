@@ -259,6 +259,9 @@ type AudioFeature = {
 );
 
 function Page(req: Request, url: URL, pathname: string) {
+  const is_htmx = !!req.headers.get("HX-Request");
+  const not_htmx = !is_htmx;
+
   if (pathname === "/") {
     return (
       <html lang="en">
@@ -277,7 +280,7 @@ function Page(req: Request, url: URL, pathname: string) {
     );
   }
 
-  if (/^\/artists$/.test(pathname)) {
+  if (/^\/artists$/.test(pathname) && not_htmx) {
     return (
       <html lang="en">
         <Head />
@@ -303,7 +306,7 @@ function Page(req: Request, url: URL, pathname: string) {
     );
   }
 
-  if (/^\/artists\/$/.test(pathname) && req.headers.get("HX-Request")) {
+  if (/^\/artists\/$/.test(pathname) && is_htmx) {
     const limit = parseInt(url.searchParams.get("limit") ?? "10");
     if (!Number.isInteger(limit)) return null;
     const offset = parseInt(url.searchParams.get("offset") ?? "0");
@@ -322,7 +325,7 @@ function Page(req: Request, url: URL, pathname: string) {
     );
   }
 
-  if (/^\/artists\/\d+$/.test(pathname)) {
+  if (/^\/artists\/\d+$/.test(pathname) && not_htmx) {
     const id = parseInt(pathname.split("/")[2]!);
     if (!Number.isInteger(id)) return null;
     const artist = artist_query.get(id as ArtistRowId);
@@ -392,7 +395,7 @@ function Page(req: Request, url: URL, pathname: string) {
     );
   }
 
-  if (/^\/artists\/\d+\/(albums|singles|compilations)$/.test(pathname) && req.headers.get("HX-Request")) {
+  if (/^\/artists\/\d+\/(albums|singles|compilations)$/.test(pathname) && is_htmx) {
     const id = parseInt(pathname.split("/")[2]!);
     if (!Number.isInteger(id)) return null;
     const artist = artist_query.get(id as ArtistRowId);
@@ -418,7 +421,7 @@ function Page(req: Request, url: URL, pathname: string) {
     );
   }
 
-  if (/^\/albums$/.test(pathname)) {
+  if (/^\/albums$/.test(pathname) && not_htmx) {
     return (
       <html lang="en">
         <Head />
@@ -444,7 +447,7 @@ function Page(req: Request, url: URL, pathname: string) {
     );
   }
 
-  if (/^\/albums\/$/.test(pathname) && req.headers.get("HX-Request")) {
+  if (/^\/albums\/$/.test(pathname) && is_htmx) {
     const limit = parseInt(url.searchParams.get("limit") ?? "10");
     if (!Number.isInteger(limit)) return null;
     const offset = parseInt(url.searchParams.get("offset") ?? "0");
@@ -463,7 +466,7 @@ function Page(req: Request, url: URL, pathname: string) {
     );
   }
 
-  if (/^\/albums\/\d+$/.test(pathname)) {
+  if (/^\/albums\/\d+$/.test(pathname) && not_htmx) {
     const id = parseInt(pathname.split("/")[2]!);
     if (!Number.isInteger(id)) return null;
     const album = album_query.get(id as AlbumRowId);
@@ -562,7 +565,7 @@ function Page(req: Request, url: URL, pathname: string) {
     );
   }
 
-  if (/^\/tracks\/\d+$/.test(pathname)) {
+  if (/^\/tracks\/\d+$/.test(pathname) && not_htmx) {
     const id = parseInt(pathname.split("/")[2]!);
     if (!Number.isInteger(id)) return null;
     const track = track_query.get(id as TrackRowId);
