@@ -307,6 +307,7 @@ function Page(req: Request, url: URL, pathname: string) {
 
   if (/^\/artists\/\d+$/.test(pathname)) {
     const id = parseInt(pathname.split("/")[2]!);
+    if (!Number.isInteger(id)) return null;
     const artist = artist_query.get(id as ArtistRowId);
     if (artist == null) return null;
     return (
@@ -376,6 +377,7 @@ function Page(req: Request, url: URL, pathname: string) {
 
   if (/^\/artists\/\d+\/(albums|singles|compilations)$/.test(pathname) && req.headers.get("HX-Request")) {
     const id = parseInt(pathname.split("/")[2]!);
+    if (!Number.isInteger(id)) return null;
     const artist = artist_query.get(id as ArtistRowId);
     if (artist == null) return null;
     const album_type = pathname.split("/")[3]!.slice(0, -1);
@@ -429,6 +431,7 @@ function Page(req: Request, url: URL, pathname: string) {
 
   if (/^\/albums\/\d+$/.test(pathname)) {
     const id = parseInt(pathname.split("/")[2]!);
+    if (!Number.isInteger(id)) return null;
     const album = album_query.get(id as AlbumRowId);
     if (album == null) return null;
     const artistalbum = artistalbum_query.get(album.rowid)!;
@@ -527,6 +530,7 @@ function Page(req: Request, url: URL, pathname: string) {
 
   if (/^\/tracks\/\d+$/.test(pathname)) {
     const id = parseInt(pathname.split("/")[2]!);
+    if (!Number.isInteger(id)) return null;
     const track = track_query.get(id as TrackRowId);
     if (track == null) return null;
     const album = album_query.get(track.album_rowid)!;
