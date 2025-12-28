@@ -52,7 +52,12 @@ const server = serve({
       return new Response(null, { status: 404 });
     }
     const stream = await renderToReadableStream(content);
-    return new Response(stream, { headers: { "Content-Type": "text/html" } });
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "text/html",
+        Vary: "HX-Request",
+      },
+    });
   },
 });
 
