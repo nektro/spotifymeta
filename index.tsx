@@ -278,8 +278,6 @@ function Page(req: Request, url: URL, pathname: string) {
   }
 
   if (/^\/artists$/.test(pathname)) {
-    const artists_query = db.query("select * from artists order by popularity desc limit 50");
-    const artists = artists_query.all() as Artist[];
     return (
       <html lang="en">
         <Head />
@@ -292,9 +290,9 @@ function Page(req: Request, url: URL, pathname: string) {
                 <div className="grid-col-10">
                   <h1>Artists</h1>
                   <ul className="usa-card-group">
-                    {artists.map((artist) => (
-                      <ArtistCard key={artist.rowid} artist={artist} />
-                    ))}
+                    <li hx-get="/artists/?limit=50&offset=0" hx-swap="outerHTML" hx-trigger="revealed">
+                      Loading more...
+                    </li>
                   </ul>
                 </div>
               </div>
@@ -302,6 +300,25 @@ function Page(req: Request, url: URL, pathname: string) {
           </div>
         </body>
       </html>
+    );
+  }
+
+  if (/^\/artists\/$/.test(pathname) && req.headers.get("HX-Request")) {
+    const limit = parseInt(url.searchParams.get("limit") ?? "10");
+    if (!Number.isInteger(limit)) return null;
+    const offset = parseInt(url.searchParams.get("offset") ?? "0");
+    if (!Number.isInteger(offset)) return null;
+    const artists_query = db.query<Artist, [number, number]>("select * from artists order by popularity desc limit ? offset ?");
+    const artists = artists_query.all(limit, offset);
+    return (
+      <>
+        {artists.map((artist) => (
+          <ArtistCard key={artist.rowid} artist={artist} />
+        ))}
+        <li hx-get={`/artists/?limit=${limit}&offset=${offset + limit}`} hx-swap="outerHTML" hx-trigger="revealed">
+          Loading more...
+        </li>
+      </>
     );
   }
 
