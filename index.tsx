@@ -417,7 +417,7 @@ function Page(req: Request, url: URL, pathname: string) {
                   <h1>{artist.name}</h1>
                   <div className="grid">
                     <div className="grid-row grid-gap">
-                      <div className="grid-col" style={{ width: "320px", flex: "0 1 auto" }}>
+                      <div className="grid-col" style={{ width: "352px", flex: "0 1 auto" }}>
                         <ArtistImage artistid={artist.rowid} w={160} h={160} />
                       </div>
                       <dl style={{ height: "fit-content" }}>
@@ -635,7 +635,7 @@ function Page(req: Request, url: URL, pathname: string) {
 
                   <div className="grid">
                     <div className="grid-row grid-gap">
-                      <div className="grid-col" style={{ width: "320px", flex: "0 1 auto" }}>
+                      <div className="grid-col" style={{ width: "352px", flex: "0 1 auto" }}>
                         <AlbumImage albumid={album.rowid} w={320} h={320} />
                       </div>
                       <dl className="grid-col">
@@ -767,7 +767,7 @@ function Page(req: Request, url: URL, pathname: string) {
 
                   <div className="grid">
                     <div className="grid-row grid-gap">
-                      <div className="grid-col" style={{ width: "320px", flex: "0 1 auto" }}>
+                      <div className="grid-col" style={{ width: "352px", flex: "0 1 auto" }}>
                         <AlbumImage albumid={album.rowid} w={320} h={320} />
                       </div>
                       <dl className="grid-col">
