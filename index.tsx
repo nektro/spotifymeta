@@ -48,6 +48,9 @@ const server = serve({
     const pathname = decodeURIComponent(url.pathname);
 
     const content = Page(req, url, pathname);
+    if (typeof content === "string") {
+      return Response.redirect(content);
+    }
     if (!content) {
       return new Response(null, { status: 404 });
     }
