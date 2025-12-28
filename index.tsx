@@ -419,8 +419,6 @@ function Page(req: Request, url: URL, pathname: string) {
   }
 
   if (/^\/albums$/.test(pathname)) {
-    const albums_query = db.query("select * from albums order by popularity desc limit 50");
-    const albums = albums_query.all() as Album[];
     return (
       <html lang="en">
         <Head />
@@ -433,9 +431,9 @@ function Page(req: Request, url: URL, pathname: string) {
                 <div className="grid-col-10">
                   <h1>Albums</h1>
                   <ul className="usa-card-group">
-                    {albums.map((album) => (
-                      <AlbumCard key={album.rowid} album={album} />
-                    ))}
+                    <li hx-get="/albums/?limit=50&offset=0" hx-swap="outerHTML" hx-trigger="revealed">
+                      Loading more...
+                    </li>
                   </ul>
                 </div>
               </div>
@@ -443,6 +441,25 @@ function Page(req: Request, url: URL, pathname: string) {
           </div>
         </body>
       </html>
+    );
+  }
+
+  if (/^\/albums\/$/.test(pathname) && req.headers.get("HX-Request")) {
+    const limit = parseInt(url.searchParams.get("limit") ?? "10");
+    if (!Number.isInteger(limit)) return null;
+    const offset = parseInt(url.searchParams.get("offset") ?? "0");
+    if (!Number.isInteger(offset)) return null;
+    const albums_query = db.query<Album, [number, number]>("select * from albums order by popularity desc limit ? offset ?");
+    const albums = albums_query.all(limit, offset);
+    return (
+      <>
+        {albums.map((album) => (
+          <AlbumCard key={album.rowid} album={album} />
+        ))}
+        <li hx-get={`/albums/?limit=${limit}&offset=${offset + limit}`} hx-swap="outerHTML" hx-trigger="revealed">
+          Loading more...
+        </li>
+      </>
     );
   }
 
