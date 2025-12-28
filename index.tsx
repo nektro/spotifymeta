@@ -610,6 +610,7 @@ function Page(req: Request, url: URL, pathname: string) {
     const tracks = tracks_query.all(album.rowid);
     const tracks_grouped = Object.groupBy(tracks, (track) => track.disc_number + "");
     const keys = Object.keys(tracks_grouped);
+    const trackartists_query = db.prepare<TrackArtist, TrackRowId>("select * from track_artists where track_rowid = ?");
     return (
       <html lang="en">
         <Head />
@@ -670,6 +671,7 @@ function Page(req: Request, url: URL, pathname: string) {
                       <tr>
                         <th>#</th>
                         <th>Name</th>
+                        <th>Artist</th>
                         <th>Duration</th>
                         <th>ISRC</th>
                       </tr>
@@ -685,6 +687,7 @@ function Page(req: Request, url: URL, pathname: string) {
                               <th>Disc {disc}</th>
                               <th></th>
                               <th></th>
+                              <th></th>
                             </tr>
                           )}
                           {tracks_grouped[disc]!.map((row) => (
@@ -694,6 +697,16 @@ function Page(req: Request, url: URL, pathname: string) {
                                 <a href={`/tracks/${row.rowid}`} className="usa-link">
                                   {row.name} {row.explicit === 1 && <span className="usa-tag">E</span>}
                                 </a>
+                              </td>
+                              <td>
+                                {trackartists_query.all(row.rowid).map((ta, i) => (
+                                  <Fragment key={ta.artist_rowid}>
+                                    {i > 0 && <>, </>}
+                                    <a className="usa-link" href={`/artists/${ta.artist_rowid}`}>
+                                      {artist_query.get(ta.artist_rowid)!.name}
+                                    </a>
+                                  </Fragment>
+                                ))}
                               </td>
                               <td>{_duration(row.duration_ms)}</td>
                               <td>{row.external_id_isrc ?? "N/A"}</td>
