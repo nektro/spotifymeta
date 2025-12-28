@@ -730,6 +730,115 @@ function Page(req: Request, url: URL, pathname: string) {
     );
   }
 
+  if (/^\/tracks$/.test(pathname) && not_htmx) {
+    return (
+      <html lang="en">
+        <Head />
+        <body id="page-tracks">
+          <Header />
+          <div>
+            <div className="grid">
+              <div className="grid-row grid-gap">
+                <Sidenav pathname={pathname} />
+                <div className="grid-col-10">
+                  <h1>
+                    Tracks
+                    <form className="usa-search usa-search--small" role="search" action="/tracks/search" method="get">
+                      <label className="usa-sr-only" htmlFor="search-field">
+                        Search
+                      </label>
+                      <input className="usa-input" id="search-field" type="search" name="q" required minLength={3} placeholder="Search" list="search-results" hx-validate="true" hx-trigger="input changed delay:250ms" hx-get="/tracks/search" hx-swap="outerHTML" hx-target="#search-results" />
+                      <button className="usa-button" type="submit">
+                        <img className="usa-search__submit-icon" alt="Go" width="24" height="24" />
+                      </button>
+                      <datalist id="search-results" />
+                    </form>
+                  </h1>
+                  <ul className="usa-card-group">
+                    <li hx-get="/tracks?limit=20&offset=0" hx-swap="outerHTML" hx-trigger="revealed">
+                      Loading more...
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </body>
+      </html>
+    );
+  }
+
+  if (/^\/tracks$/.test(pathname) && is_htmx) {
+    const limit = parseInt(url.searchParams.get("limit") ?? "10");
+    if (!Number.isInteger(limit)) return null;
+    const offset = parseInt(url.searchParams.get("offset") ?? "0");
+    if (!Number.isInteger(offset)) return null;
+    const tracks_query = db.query<Track, [number, number]>("select * from tracks order by popularity desc limit ? offset ?");
+    const tracks = tracks_query.all(limit, offset);
+    return (
+      <>
+        {tracks.map((track) => (
+          <TrackCard key={track.rowid} track={track} />
+        ))}
+        <li hx-get={`/tracks?limit=${limit}&offset=${offset + limit}`} hx-swap="outerHTML" hx-trigger="revealed">
+          Loading more...
+        </li>
+      </>
+    );
+  }
+
+  if (/^\/tracks\/search$/.test(pathname) && not_htmx) {
+    const q = url.searchParams.get("q");
+    if (!q) return "/tracks";
+    if (q.startsWith("id:")) {
+      const track_query = db.prepare<Track, string>("select * from tracks where id = ? limit 1");
+      const track = track_query.get(q.slice(3));
+      if (!track) return "/tracks";
+      return `/tracks/${track.rowid}`;
+    }
+    const query = db.prepare<Track, string>("select * from tracks where name like ? limit 50");
+    const tracks = query.all(q);
+    return (
+      <html lang="en">
+        <Head />
+        <body>
+          <Header />
+          <div>
+            <div className="grid">
+              <div className="grid-row grid-gap">
+                <Sidenav pathname={pathname} />
+                <div className="grid-col-10">
+                  <h1>Track Search: {q}</h1>
+                  <ul className="usa-card-group">
+                    {tracks.map((row) => (
+                      <TrackCard key={row.rowid} track={row} />
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </body>
+      </html>
+    );
+  }
+
+  if (/^\/tracks\/search$/.test(pathname) && is_htmx) {
+    const q = url.searchParams.get("q");
+    if (!q) return <datalist id="search-results"></datalist>;
+    const query = db.prepare<Track, string>("select * from tracks where name like ? limit 50");
+    const tracks = query.all(q);
+    return (
+      <datalist id="search-results">
+        {tracks.map((track) => (
+          <option key={track.rowid} value={`id:${track.id}`}>
+            {track.name}
+          </option>
+        ))}
+      </datalist>
+    );
+  }
+
   if (/^\/tracks\/\d+$/.test(pathname) && not_htmx) {
     const id = parseInt(pathname.split("/")[2]!);
     if (!Number.isInteger(id)) return null;
@@ -985,5 +1094,61 @@ function AvailableMarkets(props: { rowid: AvailableMarketRowId }) {
         </span>
       ))}
     </>
+  );
+}
+
+function TrackCard(props: { track: Track }) {
+  const { track } = props;
+  const album = album_query.get(track.album_rowid)!;
+  const artistalbum = artistalbum_query.get(album.rowid)!;
+  const artist = artist_query.get(artistalbum.artist_rowid)!;
+  return (
+    <li className="usa-card">
+      <div className="usa-card__container">
+        <div className="usa-card__header">
+          <h4 className="usa-card__heading">
+            <a className="usa-link" href={`/artists/${artist.rowid}`}>
+              {artist.name}
+            </a>{" "}
+            &#x203A;{" "}
+            <a className="usa-link" href={`/albums/${album.rowid}`}>
+              {album.name}
+            </a>{" "}
+            &#x203A;{" "}
+            <a className="usa-link" href={`/tracks/${track.rowid}`}>
+              {track.name}
+              {track.explicit === 1 && (
+                <span className="usa-tag" style={{ verticalAlign: "middle" }}>
+                  E
+                </span>
+              )}
+            </a>
+          </h4>
+        </div>
+        <div className="usa-card__body">
+          <div className="grid">
+            <div className="grid-row grid-gap">
+              <div className="grid-col" style={{ width: "112px", flex: "0 1 auto" }}>
+                <AlbumImage albumid={album.rowid} w={80} h={80} />
+              </div>
+              <dl className="grid-col">
+                <dt>ID:</dt>
+                <dd>{track.rowid}</dd>
+                <dt>Spotify ID:</dt>
+                <dd>
+                  <a className="usa-link" href={`https://open.spotify.com/track/${track.id}`} target="_blank">
+                    <code>{track.id}</code> ↗
+                  </a>
+                </dd>
+                <dt>Duration:</dt>
+                <dd>{_duration(track.duration_ms)}</dd>
+                <dt>Popularity</dt>
+                <dd>{track.popularity}</dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
+    </li>
   );
 }

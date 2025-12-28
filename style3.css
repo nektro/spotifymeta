@@ -120,6 +120,27 @@ table {
     }
 }
 
+#page-tracks {
+    & .usa-card-group {
+        flex-direction: column !important;
+    }
+    & .usa-card {
+        width: unset;
+        margin-bottom: 1rem;
+
+        & .usa-card__container {
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+        & .usa-card__header {
+            padding-top: 1rem;
+        }
+        & .usa-card__body {
+            padding-bottom: 1rem;
+        }
+    }
+}
+
 /* */
 
 .as-grid-table {
